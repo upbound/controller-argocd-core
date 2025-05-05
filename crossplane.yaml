@@ -1,0 +1,73 @@
+apiVersion: meta.pkg.upbound.io/v1alpha1
+kind: Controller
+metadata:
+  annotations:
+    friendly-name.meta.crossplane.io: Controller ArgoCD Core
+    meta.crossplane.io/description: |
+      The ArgoCD Core Controller enables continuous delivery and declarative
+      configuration management for Kubernetes applications using GitOps
+      principles. This controller includes argocd-server,
+      application-controller, applicationset-controller, repo-server, and redis
+      each running in non-HA mode.
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/maintainer: Upbound Maintainers <info@upbound.io>
+    meta.crossplane.io/readme: |
+      ArgoCD is a declarative GitOps continuous delivery tool for Kubernetes that
+      follows the GitOps methodology to manage infrastructure and application
+      configurations.
+    meta.crossplane.io/source: https://github.com/argoproj/argo-cd      
+  name: argocd-core
+spec:
+  packagingType: Helm
+  helm:
+    releaseName: argocd
+    releaseNamespace: argocd
+    values:
+      dex:
+        enabled: false
+      notifications:
+        enabled: false
+      controller:
+        volumes:
+          - name: up-plugin
+            emptyDir: {}
+          - name: up-home
+            emptyDir: {}
+        volumeMounts:
+          - name: up-plugin
+            mountPath: /usr/local/bin/up
+            subPath: up
+          - name: up-home
+            mountPath: /home/argocd/.up
+        initContainers:
+          - name: up-plugin
+            image: xpkg.upbound.io/upbound/up-cli:v0.39.0-0.rc.0.102.g3f384b68
+            command: ["cp"]
+            args:
+              - /usr/local/bin/up
+              - /plugin/up
+            volumeMounts:
+              - name: up-plugin
+                mountPath: /plugin
+      server:
+        volumes:
+          - name: up-plugin
+            emptyDir: {}
+          - name: up-home
+            emptyDir: {}
+        volumeMounts:
+          - name: up-plugin
+            mountPath: /usr/local/bin/up
+            subPath: up
+          - name: up-home
+            mountPath: /home/argocd/.up
+        initContainers:
+          - name: up-plugin
+            image: xpkg.upbound.io/upbound/up-cli:v0.39.0-0.rc.0.102.g3f384b68
+            command: ["cp"]
+            args:
+              - /usr/local/bin/up
+              - /plugin/up
+            volumeMounts:
+              - name: up-plugin
+                mountPath: /plugin
