@@ -18,6 +18,18 @@
       ],
       "datasourceTemplate": "helm",
       "versioningTemplate": "semver"
+    },
+    {
+      customType: "regex",
+      description: "Bump up cli in crossplane.yaml",
+      fileMatch: [
+        "crossplane.yaml",
+      ],
+      matchStrings: [
+        '#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*image:\\sxpkg\.upbound\.io\/upbound\/up-cli:"(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
     }
   ],
   "packageRules": [
