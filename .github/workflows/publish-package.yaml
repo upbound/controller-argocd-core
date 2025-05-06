@@ -16,31 +16,58 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install up cli
+        uses: upbound/action-up@v1
+        with:
+          api-token: ${{ secrets.UP_API_TOKEN }}
+          organization: upbound-demo
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+      - name: Install yq
+        run: |
+          apt update && apt install tzdata -y
+          ln -fs /usr/share/zoneinfo/UTC /etc/localtime
+          DEBIAN_FRONTEND=noninteractive
+          dpkg-reconfigure --frontend=noninteractive tzdata
+          apt update
+          apt install yq -y
       - name: Login to Upbound Marketplace
         uses: docker/login-action@v2
         with:
           registry: xpkg.upbound.io
           username: ${{ secrets.XPKG_ACCESS_ID }}
           password: ${{ secrets.XPKG_ACCESS_TOKEN }}
-      - name: Install up cli
-        uses: upbound/action-up@v1
-        with:
-          api-token: ${{ secrets.UP_API_TOKEN }}
-          organization: upbound-demo
+      - name: Create working directory
+        run: |
+          mkdir -p controller-package
+          cd controller-package
       - name: Build and Publish
+        working-directory: controller-package
         env:
           UPBOUND_API_TOKEN: ${{ secrets.UP_API_TOKEN }}
           UPBOUND_ACCOUNT: upbound-demo
           UPBOUND_REPO: upbound-demo
         run: |
-          source .chart-attributes
+          # Attributes
+          source ../.chart-attributes
+
+          # Pull the chart
           helm pull $CHART_NAME --repo $REPO_URL --version $CHART_VERSION
+
+          # Build resources
           mkdir helm
           mv $CHART_NAME-$CHART_VERSION.tgz helm/chart.tgz
           mkdir crds
-          helm template $RELEASE_NAME helm/chart.tgz -n $RELEASE_NAME --include-crds | \\n  yq e 'select(.kind == "CustomResourceDefinition")' - | \\n  yq -s '("crds/" + .metadata.name + ".yaml")' -
+          helm template $RELEASE_NAME helm/chart.tgz -n $RELEASE_NAME --include-crds | \
+            yq e 'select(.kind == "CustomResourceDefinition")' - | \
+            yq -s '("crds/" + .metadata.name + ".yaml")' -
+
+          # Build artifact
           up xpkg build
 
+          # Publish artifact
           export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
 
           up xpkg push xpkg.upbound.io/$UPBOUND_ACCOUNT/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
