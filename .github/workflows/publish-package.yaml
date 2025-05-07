@@ -27,12 +27,12 @@ jobs:
           version: 'latest'
       - name: Install yq
         run: |
-          apt update && apt install tzdata -y
+          sudo apt update && sudo apt install tzdata -y
           ln -fs /usr/share/zoneinfo/UTC /etc/localtime
           DEBIAN_FRONTEND=noninteractive
           dpkg-reconfigure --frontend=noninteractive tzdata
-          apt update
-          apt install yq -y
+          sudo apt update
+          sudo apt install yq -y
       - name: Login to Upbound Marketplace
         uses: docker/login-action@v2
         with:
