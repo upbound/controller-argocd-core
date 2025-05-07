@@ -17,10 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install up cli
-        uses: upbound/action-up@v1
-        with:
-          api-token: ${{ secrets.XPKG_ACCESS_TOKEN }}
-          organization: upbound-demo
+        run: |
+          curl -sL "https://cli.upbound.io" | sh
+          sudo mv up /usr/local/bin/
+          up version
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
