@@ -19,7 +19,7 @@ jobs:
       - name: Install up cli
         uses: upbound/action-up@v1
         with:
-          api-token: ${{ secrets.UP_API_TOKEN }}
+          api-token: ${{ secrets.XPKG_ACCESS_TOKEN }}
           organization: upbound-demo
       - name: Set up Helm
         uses: azure/setup-helm@v3
@@ -46,9 +46,7 @@ jobs:
       - name: Build and Publish
         working-directory: controller-package
         env:
-          UPBOUND_API_TOKEN: ${{ secrets.UP_API_TOKEN }}
           UPBOUND_ACCOUNT: upbound-demo
-          UPBOUND_REPO: upbound-demo
         run: |
           # Attributes
           source ../.chart-attributes
@@ -66,6 +64,9 @@ jobs:
 
           # Build artifact
           up xpkg build
+
+          # Find artifact
+          XPKG_FILENAME=$(find . -name "*.xpkg" -type f -printf "%f\n")
 
           # Publish artifact
           export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
