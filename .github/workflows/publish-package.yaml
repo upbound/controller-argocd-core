@@ -58,7 +58,7 @@ jobs:
           mkdir helm
           mv $CHART_NAME-$CHART_VERSION.tgz helm/chart.tgz
           mkdir crds
-          helm template $RELEASE_NAME helm/chart.tgz -n $RELEASE_NAME --include-crds | \
+          helm template $RELEASE_NAME helm/chart.tgz -n $RELEASE_NAME --include-crds --kube-version=1.25.0 | \
             yq e 'select(.kind == "CustomResourceDefinition")' - | \
             yq -s '("crds/" + .metadata.name + ".yaml")' -
 
