@@ -12,7 +12,6 @@ jobs:
   call-publish-image:
     name: Publish Image
     runs-on: ubuntu-latest
-    environment: Dagger build env
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,12 +35,18 @@ jobs:
           registry: xpkg.upbound.io
           username: ${{ secrets.XPKG_ACCESS_ID }}
           password: ${{ secrets.XPKG_ACCESS_TOKEN }}
+      - name: Create working directory
+        run: |
+          mkdir -p controller-package
+          cd controller-package
       - name: Build and Publish
+        working-directory: controller-package
         env:
           UPBOUND_ACCOUNT: upbound-demo
         run: |
           # Attributes
-          source .chart-attributes
+          source ../.chart-attributes
+          cp ../crossplane.yaml .
 
           # Pull the chart
           helm pull $CHART_NAME --repo $REPO_URL --version $CHART_VERSION
