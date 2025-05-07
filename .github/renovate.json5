@@ -15,7 +15,7 @@
       matchStringsStrategy: 'combination',
       matchStrings: [
         'CHART_NAME=(?<depName>.+)',
-        'CHARTVERSION=(?<currentValue>.+)',
+        'CHART_VERSION=(?<currentValue>.+)',
         'REPO_URL=(?<registryUrl>.+)',
       ],
       datasourceTemplate: 'helm',
