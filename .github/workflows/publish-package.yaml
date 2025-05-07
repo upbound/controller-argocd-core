@@ -28,9 +28,9 @@ jobs:
       - name: Install yq
         run: |
           sudo apt update && sudo apt install tzdata -y
-          ln -fs /usr/share/zoneinfo/UTC /etc/localtime
+          sudo ln -fs /usr/share/zoneinfo/UTC /etc/localtime
           DEBIAN_FRONTEND=noninteractive
-          dpkg-reconfigure --frontend=noninteractive tzdata
+          sudo dpkg-reconfigure --frontend=noninteractive tzdata
           sudo apt update
           sudo apt install yq -y
       - name: Login to Upbound Marketplace
