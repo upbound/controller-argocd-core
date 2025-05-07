@@ -36,12 +36,7 @@ jobs:
           registry: xpkg.upbound.io
           username: ${{ secrets.XPKG_ACCESS_ID }}
           password: ${{ secrets.XPKG_ACCESS_TOKEN }}
-      # - name: Create working directory
-      #   run: |
-      #     mkdir -p controller-package
-      #     cd controller-package
       - name: Build and Publish
-        # working-directory: controller-package
         env:
           UPBOUND_ACCOUNT: upbound-demo
         run: |
