@@ -51,8 +51,6 @@ jobs:
       - name: Build and Publish
         working-directory: controller-package
         if: env.UP_API_TOKEN != ''
-        env:
-          UPBOUND_ACCOUNT: upbound-demo
         run: |
           # Attributes
           source ../.chart-attributes
@@ -81,4 +79,4 @@ jobs:
           # Publish artifact
           export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
 
-          up xpkg push xpkg.upbound.io/$UPBOUND_ACCOUNT/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
+          up xpkg push xpkg.upbound.io/$UP_ORG/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
