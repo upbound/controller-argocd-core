@@ -33,6 +33,18 @@
       datasourceTemplate: '{{{datasource}}}',
       depNameTemplate: '{{{depName}}}',
     },
+    {
+      customType: 'regex',
+      description: 'Bump yq',
+      managerFilePatterns: [
+        '/publish-package.yaml/',
+      ],
+      matchStrings: [
+        '#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*YQ_VERSION="(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: '{{{datasource}}}',
+      depNameTemplate: '{{{depName}}}',
+    },
   ],
   packageRules: [
     {
