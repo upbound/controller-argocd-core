@@ -117,7 +117,7 @@ jobs:
         if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
         run: |
           # Attributes
-          source ../.chart-attributes
+          source .chart-attributes
 
           # Detect if running in a PR context
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
