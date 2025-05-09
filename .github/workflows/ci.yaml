@@ -58,12 +58,6 @@ jobs:
           source ../.chart-attributes
           cp ../crossplane.yaml .
 
-          # Detect if running in a PR context
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            COMMIT_ID=$(echo "$GITHUB_SHA" | cut -c1-7)
-            CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
-          fi
-
           echo "Using CHART_VERSION: $CHART_VERSION"
 
           # Pull the chart
@@ -88,6 +82,12 @@ jobs:
 
           # Publish artifact
           export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
+
+          # Detect if running in a PR context
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            COMMIT_ID=$(echo "$GITHUB_SHA" | cut -c1-7)
+            CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
+          fi
 
           up xpkg push xpkg.upbound.io/$UP_ORG/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
 
