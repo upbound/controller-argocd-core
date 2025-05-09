@@ -1,0 +1,6 @@
+apiVersion: pkg.upbound.io/v1alpha1
+kind: Controller
+metadata:
+  name: controller-argocd-core
+spec:
+  package: xpkg.upbound.io/upbound/controller-argocd-core:${VERSION}
