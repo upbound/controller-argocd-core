@@ -16,7 +16,7 @@ env:
   UP_ORG: ${{ secrets.UP_ORG }}
 
 jobs:
-  call-publish-image:
+  publish-image:
     name: Publish Image
     runs-on: ubuntu-latest
     steps:
