@@ -15,7 +15,7 @@ metadata:
       ArgoCD is a declarative GitOps continuous delivery tool for Kubernetes that
       follows the GitOps methodology to manage infrastructure and application
       configurations.
-    meta.crossplane.io/source: https://github.com/argoproj/argo-cd      
+    meta.crossplane.io/source: https://github.com/argoproj/argo-cd
   name: argocd-core
 spec:
   packagingType: Helm

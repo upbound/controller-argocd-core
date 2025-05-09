@@ -1,2 +1,4 @@
 helm
 crds
+.up
+_output
