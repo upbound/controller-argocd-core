@@ -38,8 +38,8 @@ jobs:
         with:
           version: v4.35.1
 
-      - name: Login to Upbound Marketplace
-        uses: docker/login-action@v3
+      - name: Login to xpkg with robot
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
         with:
           registry: xpkg.upbound.io
           username: ${{ env.UP_ROBOT_ID }}
@@ -105,6 +105,13 @@ jobs:
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
+
+      - name: Login to xpkg with robot
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        with:
+          registry: xpkg.upbound.io
+          username: ${{ env.UP_ROBOT_ID }}
+          password: ${{ env.UP_API_TOKEN }}
 
       - name: Build project
         run: up project build
