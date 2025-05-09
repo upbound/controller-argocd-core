@@ -34,7 +34,7 @@ jobs:
           version: 'latest'
 
       - name: Install yq
-        uses: dcarbone/install-yq@v1
+        uses: dcarbone/install-yq-action@v1
         with:
           version: v4.35.1
 
