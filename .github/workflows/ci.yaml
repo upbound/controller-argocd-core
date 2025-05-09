@@ -94,7 +94,6 @@ jobs:
   run-e2e-tests:
     name: Run e2e Tests
     needs: publish-image
-    if: needs.publish-image.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Install and login with up
