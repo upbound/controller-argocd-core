@@ -16,7 +16,7 @@ env:
   UP_ORG: ${{ secrets.UP_ORG }}
 
 jobs:
-  call-publish-image:
+  publish-image:
     name: Publish Image
     runs-on: ubuntu-latest
     steps:
@@ -34,12 +34,12 @@ jobs:
           version: 'latest'
 
       - name: Install yq
-        uses: dcarbone/install-yq@v1
+        uses: dcarbone/install-yq-action@v1
         with:
           version: v4.35.1
 
-      - name: Login to Upbound Marketplace
-        uses: docker/login-action@v3
+      - name: Login to xpkg with robot
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
         with:
           registry: xpkg.upbound.io
           username: ${{ env.UP_ROBOT_ID }}
@@ -57,12 +57,6 @@ jobs:
           # Load chart attributes
           source ../.chart-attributes
           cp ../crossplane.yaml .
-
-          # Detect if running in a PR context
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            COMMIT_ID=$(echo "$GITHUB_SHA" | cut -c1-7)
-            CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
-          fi
 
           echo "Using CHART_VERSION: $CHART_VERSION"
 
@@ -89,20 +83,35 @@ jobs:
           # Publish artifact
           export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
 
+          # Detect if running in a PR context
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            COMMIT_ID=$(echo "$GITHUB_SHA" | cut -c1-7)
+            CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
+          fi
+
           up xpkg push xpkg.upbound.io/$UP_ORG/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
 
   run-e2e-tests:
     name: Run e2e Tests
     needs: publish-image
-    if: needs.publish-image.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install and login with up
         if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
         uses: upbound/action-up@v1
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
+
+      - name: Login to xpkg with robot
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        with:
+          registry: xpkg.upbound.io
+          username: ${{ env.UP_ROBOT_ID }}
+          password: ${{ env.UP_API_TOKEN }}
 
       - name: Build project
         run: up project build
@@ -115,7 +124,7 @@ jobs:
         if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
         run: |
           # Attributes
-          source ../.chart-attributes
+          source .chart-attributes
 
           # Detect if running in a PR context
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
