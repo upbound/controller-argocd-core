@@ -46,7 +46,7 @@ spec:
         initContainers:
           - name: up-plugin
             # renovate: datasource=github-releases depName=upbound/up
-            image: xpkg.upbound.io/upbound/up-cli:v0.39.0
+            image: xpkg.upbound.io/upbound/up-cli:v0.39.0-8.gfb176095
             command: ["cp"]
             args:
               - /usr/local/bin/up
@@ -69,7 +69,7 @@ spec:
         initContainers:
           - name: up-plugin
             # renovate: datasource=github-releases depName=upbound/up
-            image: xpkg.upbound.io/upbound/up-cli:v0.39.0
+            image: xpkg.upbound.io/upbound/up-cli:v0.39.0-8.gfb176095
             command: ["cp"]
             args:
               - /usr/local/bin/up
