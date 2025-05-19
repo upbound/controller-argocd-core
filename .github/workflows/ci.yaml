@@ -105,6 +105,9 @@ jobs:
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
+          channel: main
+          # renovate: datasource=github-releases depName=upbound/up
+          version: v0.39.0-8.gfb176095
 
       - name: Login to xpkg with robot
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
