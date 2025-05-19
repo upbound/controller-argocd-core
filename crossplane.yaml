@@ -23,6 +23,10 @@ spec:
     releaseName: argocd
     releaseNamespace: argocd
     values:
+      configs:
+        cm:
+          application.resourceTrackingMethod: annotation
+          resource.respectRBAC: normal
       dex:
         enabled: false
       notifications:
