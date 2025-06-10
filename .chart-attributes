@@ -1,4 +1,4 @@
 CHART_NAME=argo-cd
-CHART_VERSION=8.0.10
+CHART_VERSION=8.0.16
 RELEASE_NAME=argocd
 REPO_URL=https://argoproj.github.io/argo-helm
