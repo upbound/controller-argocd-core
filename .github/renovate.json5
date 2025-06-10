@@ -72,6 +72,10 @@
       ],
     },
     {
+      separateMajorMinor: true,
+      separateMinorPatch: true,
+      separateMultipleMajor: true,
+      separateMultipleMinor: true,
       matchUpdateTypes: [
         // 'major',
         'minor',
