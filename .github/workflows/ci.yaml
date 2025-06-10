@@ -38,6 +38,9 @@ jobs:
         with:
           version: v4.35.1
 
+      - name: Install crane
+        uses: imjasonh/setup-crane@v0.1
+
       - name: Login to xpkg with robot
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
         with:
@@ -54,6 +57,9 @@ jobs:
         working-directory: controller-package
         if: env.UP_API_TOKEN != ''
         run: |
+          # Install helm images plugin
+          helm plugin install https://github.com/nikhilsbhat/helm-images
+
           # Load chart attributes
           source ../.chart-attributes
           cp ../crossplane.yaml .
@@ -88,6 +94,9 @@ jobs:
             COMMIT_ID=$(echo "$GITHUB_SHA" | cut -c1-7)
             CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
           fi
+
+          # Mirror images to xpkg.upbound.io
+          ./hack/sync-images.sh $CHART_VERSION
 
           up xpkg push xpkg.upbound.io/$UP_ORG/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
 

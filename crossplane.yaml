@@ -27,6 +27,12 @@ spec:
         cm:
           application.resourceTrackingMethod: annotation
           resource.respectRBAC: normal
+      global:
+        image:
+          repository: xpkg.upbound.io/upbound/argocd
+      redis:
+        image:
+          repository: xpkg.upbound.io/upbound/argo-redis
       dex:
         enabled: false
       notifications:
