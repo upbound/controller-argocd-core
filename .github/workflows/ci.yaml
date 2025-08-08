@@ -36,7 +36,12 @@ jobs:
       - name: Mirror images to xpkg.upbound.io
         if: env.UP_API_TOKEN != ''
         run: |
+          # Install helm images plugin
+          helm plugin install https://github.com/nikhilsbhat/helm-images
+
+          # Load chart attributes
           source .chart-attributes
+
           bash hack/sync-images.sh $CHART_VERSION $REPO_URL
 
   publish-image:
@@ -85,9 +90,6 @@ jobs:
         working-directory: ${{ matrix.package-type }}-package
         if: env.UP_API_TOKEN != ''
         run: |
-          # Install helm images plugin
-          helm plugin install https://github.com/nikhilsbhat/helm-images
-
           # Load chart attributes
           source ../.chart-attributes
           cp ../${{ matrix.package-type }}.yaml crossplane.yaml
