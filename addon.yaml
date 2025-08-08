@@ -1,0 +1,126 @@
+apiVersion: meta.pkg.upbound.io/v1beta1
+kind: AddOn
+metadata:
+  annotations:
+    friendly-name.meta.crossplane.io: Controller ArgoCD Core
+    meta.crossplane.io/description: |
+      The ArgoCD Core Controller enables continuous delivery and declarative
+      configuration management for Kubernetes applications using GitOps
+      principles. This controller includes argocd-server,
+      application-controller, applicationset-controller, repo-server, and redis
+      each running in non-HA mode.
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/maintainer: Upbound Maintainers <info@upbound.io>
+    meta.crossplane.io/readme: |
+      ArgoCD is a declarative GitOps continuous delivery tool for Kubernetes that
+      follows the GitOps methodology to manage infrastructure and application
+      configurations.
+    meta.crossplane.io/source: https://github.com/argoproj/argo-cd
+  name: argocd-core
+spec:
+  packagingType: Helm
+  helm:
+    releaseName: argocd
+    releaseNamespace: argocd
+    values:
+      configs:
+        cm:
+          application.resourceTrackingMethod: annotation
+          resource.respectRBAC: normal
+      global:
+        image:
+          repository: xpkg.upbound.io/upbound/argocd
+      redis:
+        image:
+          repository: xpkg.upbound.io/upbound/argocd-redis
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 20m
+            memory: 10Mi
+      applicationSet:
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 20m
+            memory: 128Mi
+      repoServer:
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 20m
+            memory: 128Mi
+        containerSecurityContext:
+          # Unset seccomp profile
+          # See https://github.com/argoproj/argo-cd/issues/9809
+          seccompProfile: ~
+      dex:
+        enabled: false
+      notifications:
+        enabled: false
+      controller:
+        resources:
+          limits:
+            cpu: 3
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumes:
+          - name: up-plugin
+            emptyDir: {}
+          - name: up-home
+            emptyDir: {}
+        volumeMounts:
+          - name: up-plugin
+            mountPath: /usr/local/bin/up
+            subPath: up
+          - name: up-home
+            mountPath: /home/argocd/.up
+        initContainers:
+          - name: up-plugin
+            # renovate: datasource=github-releases depName=upbound/up
+            image: xpkg.upbound.io/upbound/up-cli:v0.39.0-8.gfb176095
+            command: ["cp"]
+            args:
+              - /usr/local/bin/up
+              - /plugin/up
+            volumeMounts:
+              - name: up-plugin
+                mountPath: /plugin
+      server:
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 20m
+            memory: 128Mi
+        volumes:
+          - name: up-plugin
+            emptyDir: {}
+          - name: up-home
+            emptyDir: {}
+        volumeMounts:
+          - name: up-plugin
+            mountPath: /usr/local/bin/up
+            subPath: up
+          - name: up-home
+            mountPath: /home/argocd/.up
+        initContainers:
+          - name: up-plugin
+            # renovate: datasource=github-releases depName=upbound/up
+            image: xpkg.upbound.io/upbound/up-cli:v0.39.0-8.gfb176095
+            command: ["cp"]
+            args:
+              - /usr/local/bin/up
+              - /plugin/up
+            volumeMounts:
+              - name: up-plugin
+                mountPath: /plugin

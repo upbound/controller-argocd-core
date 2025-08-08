@@ -4,19 +4,19 @@ import file
 version = file.read_env("UP_CHART_VERSION")
 _items = [
     metav1alpha1.E2ETest{
-        metadata.name: "controller-argocd-core"
+        metadata.name: "addon-argocd-core"
         spec= {
             crossplane.autoUpgrade.channel: "Rapid"
             defaultConditions: ["Installed", "Healthy"]
             manifests: [
                 {
-                    apiVersion: "pkg.upbound.io/v1alpha1"
-                    kind: "Controller"
+                    apiVersion: "pkg.upbound.io/v1beta1"
+                    kind: "Addon"
                     metadata: {
-                        name: "pkg-controller-argocd-core"
+                        name: "pkg-addon-argocd-core"
                     }
                     spec: {
-                        package: "xpkg.upbound.io/upbound/controller-argocd-core:"+ version
+                        package: "xpkg.upbound.io/upbound/addon-argocd-core:"+ version
                     }
                 }
             ]
