@@ -16,9 +16,41 @@ env:
   UP_ORG: ${{ secrets.UP_ORG }}
 
 jobs:
+  mirror-images:
+    name: Mirror Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install crane
+        uses: imjasonh/setup-crane@v0.1
+
+      - name: Login to xpkg with robot
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        with:
+          registry: xpkg.upbound.io
+          username: ${{ env.UP_ROBOT_ID }}
+          password: ${{ env.UP_API_TOKEN }}
+
+      - name: Mirror images to xpkg.upbound.io
+        if: env.UP_API_TOKEN != ''
+        run: |
+          # Install helm images plugin
+          helm plugin install https://github.com/nikhilsbhat/helm-images
+
+          # Load chart attributes
+          source .chart-attributes
+
+          bash hack/sync-images.sh $CHART_VERSION $REPO_URL
+
   publish-image:
     name: Publish Image
+    needs: mirror-images
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package-type: [controller, addon]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +59,7 @@ jobs:
         uses: upbound/action-up@v1
         with:
           skip-login: true
+          channel: alpha
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -50,19 +83,16 @@ jobs:
 
       - name: Create working directory
         run: |
-          mkdir -p controller-package
-          cd controller-package
+          mkdir -p ${{ matrix.package-type }}-package
+          cd ${{ matrix.package-type }}-package
 
       - name: Build and Publish
-        working-directory: controller-package
+        working-directory: ${{ matrix.package-type }}-package
         if: env.UP_API_TOKEN != ''
         run: |
-          # Install helm images plugin
-          helm plugin install https://github.com/nikhilsbhat/helm-images
-
           # Load chart attributes
           source ../.chart-attributes
-          cp ../crossplane.yaml .
+          cp ../${{ matrix.package-type }}.yaml crossplane.yaml
 
           echo "Using CHART_VERSION: $CHART_VERSION"
 
@@ -87,10 +117,11 @@ jobs:
           XPKG_FILENAME=$(find . -name "*.xpkg" -type f -printf "%f\n")
 
           # Publish artifact
-          export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
-
-          # Mirror images to xpkg.upbound.io
-          bash ../hack/sync-images.sh $CHART_VERSION $REPO_URL
+          if [[ "${{ matrix.package-type }}" == "addon" ]]; then
+            export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///' | sed 's/controller/addon/')
+          else
+            export CONTROLLER_NAME=$(printf '%s' "$GITHUB_REPOSITORY" | sed 's/.*\///')
+          fi
 
           # Detect if running in a PR context
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
@@ -114,9 +145,7 @@ jobs:
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
-          channel: main
-          # renovate: datasource=github-releases depName=upbound/up
-          version: v0.39.0-8.gfb176095
+          channel: alpha
 
       - name: Login to xpkg with robot
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
@@ -127,10 +156,6 @@ jobs:
 
       - name: Build project
         run: up project build
-
-      - name: Switch up context
-        if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
-        run: up ctx ${{ secrets.UP_ORG }}/space-the-final-frontier/default
 
       - name: Run e2e tests
         if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
@@ -144,4 +169,4 @@ jobs:
             CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
           fi
 
-          UP_CHART_VERSION=$CHART_VERSION up test run tests/* --e2e
+          UP_CHART_VERSION=$CHART_VERSION up test run tests/* --e2e --local
