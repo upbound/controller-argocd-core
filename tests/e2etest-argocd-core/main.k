@@ -11,7 +11,7 @@ _items = [
             manifests: [
                 {
                     apiVersion: "pkg.upbound.io/v1beta1"
-                    kind: "Addon"
+                    kind: "AddOn"
                     metadata: {
                         name: "pkg-addon-argocd-core"
                     }
