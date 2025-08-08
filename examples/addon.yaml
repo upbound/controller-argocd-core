@@ -1,0 +1,6 @@
+apiVersion: pkg.upbound.io/v1beta1
+kind: AddOn
+metadata:
+  name: addon-argocd-core
+spec:
+  package: xpkg.upbound.io/upbound/addon-argocd-core:${VERSION}

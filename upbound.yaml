@@ -1,12 +1,16 @@
-apiVersion: meta.dev.upbound.io/v1alpha1
+apiVersion: meta.dev.upbound.io/v2alpha1
 kind: Project
 metadata:
-  name: controller-argocd-core
+  name: addon-argocd-core
 spec:
-  description: controller-argocd-core
+  apiDependencies:
+  - k8s:
+      version: v1.33.0
+    type: k8s
+  description: addon-argocd-core
   license: Apache-2.0
   maintainer: Upbound Maintainers <info@upbound.io>
   readme: |
-    Test for controller-argocd-core
-  repository: xpkg.upbound.io/upbound/controller-argocd-core_test
-  source: github.com/upbound/controller-argocd-core
+    Test for addon-argocd-core
+  repository: xpkg.upbound.io/upbound/addon-argocd-core_test
+  source: github.com/upbound/addon-argocd-core
