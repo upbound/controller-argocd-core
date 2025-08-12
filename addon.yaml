@@ -16,6 +16,16 @@ metadata:
       follows the GitOps methodology to manage infrastructure and application
       configurations.
     meta.crossplane.io/source: https://github.com/argoproj/argo-cd
+    meta.upbound.io/hardening: |
+      - Backporting
+    meta.upbound.io/host: |
+      - UXP
+      - Spaces
+    meta.upbound.io/subscription: |
+      - Community
+      - Standard
+      - Enterprise
+      - Business Critical    
   name: argocd-core
 spec:
   packagingType: Helm
