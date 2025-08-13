@@ -128,7 +128,18 @@ jobs:
             CHART_VERSION="${CHART_VERSION}-${COMMIT_ID}"
           fi
 
+          echo "UP_ORG=$UP_ORG" >> $GITHUB_ENV
+          echo "CONTROLLER_NAME=$CONTROLLER_NAME" >> $GITHUB_ENV
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_ENV
+
           up xpkg push xpkg.upbound.io/$UP_ORG/$CONTROLLER_NAME:$CHART_VERSION -f $XPKG_FILENAME
+
+      - name: Append package assets for Marketplace
+        run: |
+          extensions_dir=${{ github.workspace }}/extensions
+          mkdir -p $extensions_dir/readme
+          cp ./README.md $extensions_dir/readme/readme.md
+          up alpha xpkg append xpkg.upbound.io/${{ env.UP_ORG }}/${{ env.CONTROLLER_NAME }}:${{ env.CHART_VERSION }} --extensions-root $extensions_dir          
 
   run-e2e-tests:
     name: Run e2e Tests
