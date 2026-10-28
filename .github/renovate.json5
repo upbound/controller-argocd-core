@@ -3,14 +3,25 @@
   extends: [
     'config:recommended',
   ],
+  // Renovate only bumps the upstream chart in .chart-attributes. It never
+  // touches its own config or the workflows, and nothing merges without review:
+  // a merge to main publishes the package to the Marketplace.
+  enabledManagers: [
+    'custom.regex',
+  ],
+  configMigration: false,
+  automerge: false,
   labels: [
+    'automated',
     'renovate',
   ],
+  separateMultipleMajor: true,
   customManagers: [
     {
       customType: 'regex',
+      description: 'Bump the upstream Helm chart in .chart-attributes',
       managerFilePatterns: [
-        '/.chart-attributes$/',
+        '/(^|/)\\.chart-attributes$/',
       ],
       matchStringsStrategy: 'combination',
       matchStrings: [
@@ -21,72 +32,19 @@
       datasourceTemplate: 'helm',
       versioningTemplate: 'semver',
     },
-    {
-      customType: 'regex',
-      description: 'Bump up cli in crossplane.yaml',
-      managerFilePatterns: [
-        '/crossplane.yaml/',
-      ],
-      matchStrings: [
-        '#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*image:\\sxpkg.upbound.io/upbound/up-cli:"(?<currentValue>[^"]+)"',
-      ],
-      datasourceTemplate: '{{{datasource}}}',
-      depNameTemplate: '{{{depName}}}',
-    },
-    {
-      customType: 'regex',
-      description: 'Bump yq',
-      managerFilePatterns: [
-        '/.*publish-package.yaml/',
-      ],
-      matchStrings: [
-        '#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*YQ_VERSION="(?<currentValue>[^"]+)"',
-      ],
-      datasourceTemplate: '{{{datasource}}}',
-      depNameTemplate: '{{{depName}}}',
-    },
   ],
   packageRules: [
     {
-      matchUpdateTypes: [
-        'major',
-      ],
-      addLabels: [
-        'major-update',
-      ],
+      matchUpdateTypes: ['major'],
+      addLabels: ['major-update'],
     },
     {
-      matchUpdateTypes: [
-        'minor',
-      ],
-      addLabels: [
-        'minor-update',
-      ],
+      matchUpdateTypes: ['minor'],
+      addLabels: ['minor-update'],
     },
     {
-      matchUpdateTypes: [
-        'patch',
-      ],
-      addLabels: [
-        'patch-update',
-      ],
-    },
-    {
-      separateMajorMinor: true,
-      separateMinorPatch: true,
-      separateMultipleMajor: true,
-      separateMultipleMinor: true,
-      matchUpdateTypes: [
-        // 'major',
-        'minor',
-        'patch',
-        'pin',
-        'digest',
-      ],
-      matchDepNames: [
-        'argo-cd'
-      ],
-      automerge: true,
+      matchUpdateTypes: ['patch'],
+      addLabels: ['patch-update'],
     },
   ],
 }
